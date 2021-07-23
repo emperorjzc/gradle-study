@@ -1,0 +1,15 @@
+wrapper {
+    // gradleVersion = '6.5'
+    distributionUrl = distributionUrl.replace("bin", "all")
+}
+
+task hello{
+    doLast{
+        logger.quiet('quiet 日志信息')
+        logger.error('error 日志信息')
+        logger.warn('warn 日志信息')
+        logger.lifecycle('lifecycle 日志信息')
+        logger.info('info 日志信息')
+        logger.debug('debug 日志信息')
+    }
+}
