@@ -13,3 +13,142 @@ task hello{
         logger.debug('debug 日志信息')
     }
 }
+
+task helloDelegate {
+    new Delegate().test{
+        println "thisObject: ${thisObject.getClass()}"
+        println "owner: ${owner.getClass()}"
+        println "delegate: ${delegate.getClass()}"
+        method1()
+        it.method1()
+    }
+
+}
+
+def method1(){
+    println "Context this:${this.getClass()} in root"
+    println "method1 in root"
+}
+
+class Delegate {
+    def method1() {
+        println "Delegate this:${this.getClass()} in Delegate"
+        println "method1 in Delegate"
+    }
+
+    def test(Closure<Delegate> closure) {
+        closure(this)
+    }
+}
+
+
+task configClosure {
+    person {
+        println "delegate:${delegate.getClass()}"
+        delegate.personName = "张三"
+        delegate.personAge = 18
+        delegate.dumpPerson()
+    }
+}
+
+class Person {
+    String personName
+    int personAge
+
+    def dumpPerson() {
+        println "name is ${personName}, age is ${personAge}"
+    }
+}
+
+def person(Closure<Delegate> closure) {
+    Person p = new Person()
+    closure.delegate = p
+    // 委托模式优先
+    closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+    closure()
+}
+
+task customTask1 {
+    doFirst {
+        println "customTask1:doFirst"
+    }
+    
+    doLast {
+        println "customTask1:doLast"
+    }
+}
+
+tasks.create('customTask2') {
+        doFirst {
+        println "customTask2:doFirst"
+    }
+    
+    doLast {
+        println "customTask2:doLast"
+    }
+}
+
+task exHello {
+    println 'hello'
+}
+
+task exWorld {
+    println 'world'
+}
+
+task exMain(dependsOn: exHello) {
+    doFirst {
+        println 'main'
+    }
+}
+
+task exMultiTask {
+    dependsOn exHello, exWorld
+    doFirst {
+        println 'multiTask'
+    }
+}
+
+task taskHello {
+    println 'taskHello'
+}
+
+taskHello.doFirst {
+    println 'doFirst'
+}
+
+taskHello.doLast {
+    println project.hasProperty('taskHello')
+    println 'doLast'
+}
+
+apply plugin: "java"
+
+ext.age = 18 
+ext {
+    phone = 123
+    address = "address"
+}
+
+sourceSets.all {
+    ext.resourcesDir = null
+}
+
+sourceSets {
+    main {
+        resourcesDir = 'main/res'
+    }
+
+    test {
+        resourcesDir = 'test/res'
+    }
+}
+
+task customProperty {
+    println "age is ${age}"
+    println "phone is ${phone}"
+    println "address is ${address}"
+    sourceSets.each {
+        println "${it.name}的resourcesDir is ${it.resourcesDir}"
+    }
+}

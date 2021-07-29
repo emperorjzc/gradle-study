@@ -1,0 +1,3 @@
+rootProject.name = "gradle-study"
+include':example01'
+project(':example01').projectDir = new File(rootDir, 'chapter03/example01')
